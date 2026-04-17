@@ -255,6 +255,26 @@ USERS = {
 trader_df = df.filter((pl.col("maker") == USERS['domah']))
 ```
 
+## Ad-hoc Market Lookups
+
+For quick queries against the Gamma API without touching the CSV pipeline, use
+`poly_utils.gamma`:
+
+```python
+from poly_utils import fetch_active_markets, fetch_market_by_token
+
+markets = fetch_active_markets(limit=1)
+market = markets[0]
+print(market["question"])
+print(market["clobTokenIds"])      # [yes_token_id, no_token_id]
+print(market["yes_token_id"], market["no_token_id"])
+
+# Reverse lookup: market for a known CLOB token id
+fetch_market_by_token("123456...")
+```
+
+The JS equivalent lives in `examples/fetch_active_market.js`.
+
 ## License
 
 Go wild with it
