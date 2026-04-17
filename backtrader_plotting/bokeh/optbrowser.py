@@ -56,9 +56,9 @@ class OptBrowser:
 
             tab_columns.append(TableColumn(field=colname, title=f'{colname}', sortable=False, formatter=formatter))
 
-        # TODO: currently table size is hardcoded
+        scheme = self._bokeh.params.scheme
         cds = ColumnDataSource(df)
-        selector = DataTable(source=cds, columns=tab_columns, width=1600, height=150)
+        selector = DataTable(source=cds, columns=tab_columns, width=scheme.table_width, height=scheme.table_height)
         return selector, cds
 
     def build_optresult_model(self, _=None) -> Model:
