@@ -64,6 +64,10 @@ Output columns: `timestamp, market_id, maker, taker, nonusdc_side, maker_directi
 
 `poly_utils/gamma.py` is a thin, retry/backoff-aware wrapper around `https://gamma-api.polymarket.com/markets` that returns dicts with `clobTokenIds` / `outcomes` already JSON-parsed and synthetic `yes_token_id` / `no_token_id` fields. Use it (`fetch_markets`, `fetch_active_markets`, `fetch_market_by_token`) for ad-hoc lookups — the CSV pipeline stages do **not** go through it and have their own inline HTTP + retry logic; keep them decoupled unless consolidating the three implementations intentionally.
 
+## Data API helper
+
+`poly_utils/data_api.py` wraps `https://data-api.polymarket.com` (user-centric reads, no auth) with the same retry/backoff shape as `gamma.py`. Helpers: `fetch_positions(user, ...)`, `fetch_trades(...)`, `fetch_activity(user, ...)`, `fetch_holders(market_condition_id, ...)`, `fetch_value(user, ...)`. List inputs to `market` / `type` are auto-joined into the CSV format the API expects, and booleans are coerced to lowercase strings. The `market` parameter on these endpoints is a **conditionId** (not a token id) — that's the same `condition_id` column written into `markets.csv`. This API is independent from the Gamma + Goldsky pipeline; it's the right tool for "what is wallet X holding right now?" style questions.
+
 ## Conventions that bite
 
 - **Token IDs are 76-digit decimal strings.** When reading any CSV that contains `token1`/`token2`/`makerAssetId`/`takerAssetId` with polars, pass `schema_overrides={"token1": pl.Utf8, "token2": pl.Utf8}` (or the equivalent for asset id columns) — autoinference overflows them into floats and corrupts the id.
